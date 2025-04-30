@@ -4,7 +4,9 @@ setup(
     name="honeyhive-logger",
     version="..1",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+        "requests>=2.31.0",
+    ],
     extras_require={
         "dev": [
             "pytest>=7.0.0",
