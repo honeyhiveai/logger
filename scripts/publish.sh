@@ -10,6 +10,22 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+# Find the correct Python interpreter
+if command -v python3 &> /dev/null; then
+    PYTHON="python3"
+elif command -v python &> /dev/null; then
+    PYTHON="python"
+else
+    echo "Error: Python not found"
+    exit 1
+fi
+
+# Install twine if not present
+if ! $PYTHON -c "import twine" &> /dev/null; then
+    echo "Installing twine..."
+    $PYTHON -m pip install --user twine
+fi
+
 # Check if PYPI_TOKEN is set
 if [ -z "$PYPI_TOKEN" ]; then
     echo "Error: PYPI_TOKEN environment variable is not set"
@@ -53,9 +69,12 @@ sed -i '' "s/version=\".*\"/version=\"$new_version\"/" setup.py
 ./scripts/build.sh
 
 # Publish to PyPI
-python3 -m twine upload --username __token__ --password "$PYPI_TOKEN" dist/*
+if ! $PYTHON -m twine upload --username __token__ --password "$PYPI_TOKEN" dist/*; then
+    echo "Error: Failed to publish package to PyPI"
+    exit 1
+fi
 
-# Commit the new version
+# Only proceed with git operations if PyPI upload was successful
 git add setup.py
 git commit -m "v$new_version"
 git tag "v$new_version"
