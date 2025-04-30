@@ -100,7 +100,7 @@ def test_log_event():
     )
     
     # Wait for event to be processed
-    time.sleep(10)
+    time.sleep(20)
     
     # Verify event was logged correctly
     sdk = honeyhive.HoneyHive(bearer_auth=os.environ["HH_API_KEY"], server_url=os.environ["HH_API_URL"])

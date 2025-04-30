@@ -16,7 +16,8 @@ def _retry_with_backoff(
     base_delay: float = 1.0,
     max_delay: float = 5.0,
     timeout: float = 5.0,
-    verbose: bool = False
+    verbose: bool = False,
+    ca_bundle_path: str = None
 ) -> T:
     """
     Retry a function with exponential backoff and jitter.
@@ -28,6 +29,7 @@ def _retry_with_backoff(
         max_delay: Maximum delay in seconds
         timeout: Socket timeout in seconds
         verbose: Whether to print debug information
+        ca_bundle_path: Path to a custom CA bundle file. If None, uses system default.
         
     Returns:
         The result of the function call
@@ -41,6 +43,13 @@ def _retry_with_backoff(
         try:
             # Set socket timeout
             socket.setdefaulttimeout(timeout)
+            
+            # Create SSL context with custom CA bundle if provided
+            if ca_bundle_path:
+                import ssl
+                ssl_context = ssl.create_default_context(cafile=ca_bundle_path)
+                # Monkey patch the default context
+                ssl._create_default_https_context = lambda: ssl_context
             
             # Try the function
             return http_request_func()
@@ -79,7 +88,8 @@ def start(
     user_properties: Dict[str, Any] = None,
     session_id: str = None,
     server_url: str = 'https://api.honeyhive.ai',
-    verbose: bool = False
+    verbose: bool = False,
+    ca_bundle_path: str = None
 ) -> str:
     """
     Start a new session with HoneyHive using only built-in Python packages.
@@ -100,6 +110,7 @@ def start(
         session_id (str, optional): A valid UUIDv4 for the session to correlate with your logs. If not provided, one will be generated.
         server_url (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
         verbose (bool, optional): Print detailed error messages for debugging. Defaults to False.
+        ca_bundle_path (str, optional): Path to a custom CA bundle file. If None, uses system default.
         
     Returns:
         str: The session ID (UUIDv4)
@@ -186,7 +197,7 @@ def start(
                 print("\033[38;5;208mHoneyHive is initialized\033[0m") 
                 return response_data["session_id"]
 
-        return _retry_with_backoff(make_request, verbose=verbose)
+        return _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path)
 
     except Exception as e:
         print("HoneyHive: Failed to start session. Please enable verbose mode to debug.")
@@ -207,7 +218,8 @@ def log(
     session_id: str = None,
     duration_ms: int = 10,
     server_url: str = 'https://api.honeyhive.ai',
-    verbose: bool = False
+    verbose: bool = False,
+    ca_bundle_path: str = None
 ) -> str:
     """
     Log an event to HoneyHive using only built-in Python packages.
@@ -230,6 +242,7 @@ def log(
         duration_ms (int, optional): Duration of the event in milliseconds. If not provided, will be set to 10.
         server_url (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
         verbose (bool, optional): Print detailed error messages for debugging. Defaults to False.
+        ca_bundle_path (str, optional): Path to a custom CA bundle file. If None, uses system default.
         
     Returns:
         str: The event ID (UUIDv4)
@@ -335,7 +348,7 @@ def log(
                 
                 return event_id
 
-        return _retry_with_backoff(make_request, verbose=verbose)
+        return _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path)
 
     except Exception as e:
         print("HoneyHive: Failed to log event. Please enable verbose mode to debug.")
@@ -354,7 +367,8 @@ def update(
     user_properties: Dict[str, Any] = None,
     duration_ms: int = None,
     server_url: str = 'https://api.honeyhive.ai',
-    verbose: bool = False
+    verbose: bool = False,
+    ca_bundle_path: str = None
 ) -> None:
     """
     Update an event or session with additional data using only built-in Python packages.
@@ -375,6 +389,7 @@ def update(
         duration_ms (int, optional): Duration of the event in milliseconds.
         server_url (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
         verbose (bool, optional): Print detailed error messages for debugging. Defaults to False.
+        ca_bundle_path (str, optional): Path to a custom CA bundle file. If None, uses system default.
         
     Raises:
         Exception: If required parameters are missing or invalid
@@ -475,7 +490,7 @@ def update(
                     print(f"Successfully updated event {event_id}")
                     print("Response:", response.read().decode())
 
-        _retry_with_backoff(make_request, verbose=verbose)
+        _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path)
 
     except Exception as e:
         print("HoneyHive: Failed to update event. Please enable verbose mode to debug.")
