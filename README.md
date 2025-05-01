@@ -2,7 +2,9 @@
 
 This repository contains language-specific loggers for HoneyHive that wrap our main `/events` endpoints.
 
-All the SDKs have no external dependencies and are perfectly stateless.
+All the SDKs have
+1. no external dependencies
+2. are perfectly stateless.
 
 This approach works better for serverless execution & super regulated environments with strict security requirements.
 
