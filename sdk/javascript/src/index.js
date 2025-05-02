@@ -198,6 +198,9 @@ async function log(params) {
         sessionId: providedSessionId,
         eventName,
         eventType = "tool",
+        source = "dev",
+        durationMs = 10,
+        config = {},
         inputs = {},
         outputs = {},
         metadata = {},
@@ -250,10 +253,13 @@ async function log(params) {
                         project,
                         event_name: eventName,
                         event_type: eventType,
+                        config,
                         inputs,
                         outputs,
                         metadata,
-                        start_time: Date.now()
+                        source,
+                        start_time: Date.now(),
+                        duration: durationMs
                     }
                 }),
                 signal
