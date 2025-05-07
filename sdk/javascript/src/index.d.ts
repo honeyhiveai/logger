@@ -1,7 +1,7 @@
 /**
  * Configuration options for retry mechanism
  */
-interface RetryOptions {
+export interface RetryOptions {
     maxRetries?: number;
     baseDelay?: number;
     maxDelay?: number;
@@ -12,7 +12,7 @@ interface RetryOptions {
 /**
  * Session configuration parameters
  */
-interface SessionParams {
+export interface SessionParams {
     apiKey?: string;
     project?: string;
     sessionName?: string;
@@ -29,7 +29,7 @@ interface SessionParams {
 /**
  * Event logging parameters
  */
-interface LogParams {
+export interface LogParams {
     apiKey?: string;
     project?: string;
     sessionId?: string;
@@ -48,7 +48,7 @@ interface LogParams {
 /**
  * Event update parameters
  */
-interface UpdateParams {
+export interface UpdateParams {
     apiKey?: string;
     eventId: string;
     metadata?: Record<string, any>;
@@ -65,16 +65,16 @@ interface UpdateParams {
 /**
  * Start a new session with HoneyHive
  * @param params Session configuration parameters
- * @returns Promise resolving to the session ID (UUIDv4) or null if failed
+ * @returns Promise resolving to the session ID (UUIDv4) or undefined if failed
  */
-declare function start(params: SessionParams): Promise<string | null>;
+declare function start(params: SessionParams): Promise<string | undefined>;
 
 /**
  * Log an event to HoneyHive
  * @param params Event logging parameters
- * @returns Promise resolving to the event ID (UUIDv4) or null if failed
+ * @returns Promise resolving to the event ID (UUIDv4) or undefined if failed
  */
-declare function log(params: LogParams): Promise<string | null>;
+declare function log(params: LogParams): Promise<string | undefined>;
 
 /**
  * Update an event or session with additional data
