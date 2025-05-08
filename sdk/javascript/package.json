@@ -1,6 +1,6 @@
 {
   "name": "@honeyhive/logger",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "A JavaScript logger for HoneyHive that helps you track and monitor your AI applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
