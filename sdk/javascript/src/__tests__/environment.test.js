@@ -25,7 +25,9 @@ describe('Environment Variable Support', () => {
 
       expect(sessionId).toBe(mockSessionId);
       expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer env-api-key');
+      expect(fetch.mock.calls[0][1].headers.Authorization).toBe(
+        'Bearer env-api-key'
+      );
     });
 
     it('should read project from environment variable', async () => {
@@ -65,7 +67,9 @@ describe('Environment Variable Support', () => {
 
       expect(sessionId).toBe(mockSessionId);
       expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch.mock.calls[0][0]).toBe('https://api.honeyhive.ai/session/start');
+      expect(fetch.mock.calls[0][0]).toBe(
+        'https://api.honeyhive.ai/session/start'
+      );
     });
 
     it('should make project optional when API key starts with hh_', async () => {
@@ -85,7 +89,9 @@ describe('Environment Variable Support', () => {
       });
 
       expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+      expect(console.error).toHaveBeenCalledWith(
+        '\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m'
+      );
     });
   });
 
@@ -102,7 +108,9 @@ describe('Environment Variable Support', () => {
 
       expect(eventId).toBe(mockEventId);
       expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer env-api-key');
+      expect(fetch.mock.calls[0][1].headers.Authorization).toBe(
+        'Bearer env-api-key'
+      );
     });
 
     it('should make project optional when API key starts with hh_', async () => {
@@ -127,7 +135,9 @@ describe('Environment Variable Support', () => {
       });
 
       expect(eventId).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+      expect(console.error).toHaveBeenCalledWith(
+        '\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m'
+      );
     });
   });
 
@@ -141,7 +151,9 @@ describe('Environment Variable Support', () => {
       });
 
       expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer env-api-key');
+      expect(fetch.mock.calls[0][1].headers.Authorization).toBe(
+        'Bearer env-api-key'
+      );
     });
 
     it('should read server URL from environment variable', async () => {

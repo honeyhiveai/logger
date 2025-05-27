@@ -43,12 +43,21 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.python == 'true'
     runs-on: ubuntu-latest
+    env:
+      HH_API_KEY: "hh_test_key_for_ci"
+      HH_PROJECT: "test_project"
+      HH_API_URL: "https://api.honeyhive.ai"
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: '3.9'
     - name: Install dependencies
-      run: cd sdk/python && pip install -e .
+      run: cd sdk/python && pip install -e . && pip install python-dotenv
+    - name: Create .env file
+      run: |
+        echo 'HH_API_KEY="hh_test_key_for_ci"' > sdk/python/.env
+        echo 'HH_PROJECT="test_project"' >> sdk/python/.env
+        echo 'HH_API_URL="https://api.honeyhive.ai"' >> sdk/python/.env
     - name: Run tests
       run: cd sdk/python && python -m pytest test_logger.py -v

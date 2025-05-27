@@ -30,7 +30,9 @@ describe('HoneyHive Logger', () => {
       });
 
       expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+      expect(console.error).toHaveBeenCalledWith(
+        '\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m'
+      );
     });
 
     it('should throw error when apiKey is missing (verbose=true)', async () => {
@@ -48,7 +50,9 @@ describe('HoneyHive Logger', () => {
       });
 
       expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+      expect(console.error).toHaveBeenCalledWith(
+        '\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m'
+      );
     });
 
     it('should throw error when project is missing (verbose=true)', async () => {
@@ -147,7 +151,9 @@ describe('HoneyHive Logger', () => {
         apiKey: mockApiKey,
       });
 
-      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+      expect(console.error).toHaveBeenCalledWith(
+        '\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m'
+      );
     });
 
     it('should throw error when required parameters are missing (verbose=true)', async () => {
@@ -182,4 +188,4 @@ describe('HoneyHive Logger', () => {
       ).rejects.toThrow('Error message');
     });
   });
-});    
+});
