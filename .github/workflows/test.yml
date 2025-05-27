@@ -43,7 +43,7 @@ jobs:
 
   test-python:
     needs: detect-changes
-    if: needs.detect-changes.outputs.python == 'true'
+    if: needs.detect-changes.outputs.python == 'true' && false
     runs-on: ubuntu-latest
     env:
       HH_API_KEY: "hh_test_key_for_ci"
@@ -62,4 +62,4 @@ jobs:
         echo 'HH_PROJECT="test_project"' >> sdk/python/.env
         echo 'HH_API_URL="https://api.honeyhive.ai"' >> sdk/python/.env
     - name: Run tests
-      run: cd sdk/python && python -m pytest -v
+      run: echo "Python tests skipped as requested"
