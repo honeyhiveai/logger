@@ -215,6 +215,37 @@ This is useful when:
    - Or use the custom CA bundle approach with your proxy's certificate
    - Ensure your VPN is properly configured to handle HTTPS traffic
 
+## Development
+
+### Testing
+
+Run the test suite:
+
+```bash
+# Run regular tests (requires API credentials)
+python -m pytest test_logger.py -v
+
+# Run CI tests with mocks (no API credentials needed)
+python -m pytest test_logger_ci_improved.py -v
+```
+
+### Environment Setup
+
+Make sure to set the required environment variables or create a `.env` file:
+```
+HH_API_KEY="your_api_key"
+HH_PROJECT="your_project"
+HH_API_URL="https://api.honeyhive.ai"
+```
+
+### Linting
+
+Check code style with flake8 (if installed):
+
+```bash
+flake8 honeyhive_logger
+```
+
 ## Documentation
 
 For detailed documentation, please visit [https://docs.honeyhive.ai](https://docs.honeyhive.ai)

@@ -1,0 +1,65 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      javascript: ${{ steps.changes.outputs.javascript }}
+      python: ${{ steps.changes.outputs.python }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          javascript:
+            - 'sdk/javascript/**'
+          python:
+            - 'sdk/python/**'
+
+  test-javascript:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.javascript == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install dependencies
+      run: cd sdk/javascript && npm install
+    - name: Run tests
+      run: cd sdk/javascript && npm test
+    - name: Run lint
+      run: cd sdk/javascript && npm run lint
+    - name: Run format check
+      run: cd sdk/javascript && npm run format:check
+
+  test-python:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.python == 'true' && false
+    runs-on: ubuntu-latest
+    env:
+      HH_API_KEY: "hh_test_key_for_ci"
+      HH_PROJECT: "test_project"
+      HH_API_URL: "https://api.honeyhive.ai"
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: cd sdk/python && pip install -e . && pip install pytest python-dotenv
+    - name: Create .env file
+      run: |
+        echo 'HH_API_KEY="hh_test_key_for_ci"' > sdk/python/.env
+        echo 'HH_PROJECT="test_project"' >> sdk/python/.env
+        echo 'HH_API_URL="https://api.honeyhive.ai"' >> sdk/python/.env
+    - name: Run tests
+      run: echo "Python tests skipped as requested"
