@@ -38,6 +38,8 @@ jobs:
       run: cd sdk/javascript && npm test
     - name: Run lint
       run: cd sdk/javascript && npm run lint
+    - name: Run format check
+      run: cd sdk/javascript && npm run format:check
 
   test-python:
     needs: detect-changes
@@ -53,11 +55,11 @@ jobs:
       with:
         python-version: '3.9'
     - name: Install dependencies
-      run: cd sdk/python && pip install -e . && pip install python-dotenv honeyhive
+      run: cd sdk/python && pip install -e . && pip install pytest python-dotenv
     - name: Create .env file
       run: |
         echo 'HH_API_KEY="hh_test_key_for_ci"' > sdk/python/.env
         echo 'HH_PROJECT="test_project"' >> sdk/python/.env
         echo 'HH_API_URL="https://api.honeyhive.ai"' >> sdk/python/.env
     - name: Run tests
-      run: cd sdk/python && python -m pytest test_logger_ci.py -v
+      run: cd sdk/python && python -m pytest test_logger_ci_improved.py -v
