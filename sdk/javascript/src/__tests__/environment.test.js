@@ -118,7 +118,7 @@ describe('Environment Variable Support', () => {
             expect(fetch).toHaveBeenCalledTimes(1);
         });
         
-        it('should allow eventName to be optional', async () => {
+        it('should require eventName parameter', async () => {
             fetch.mockResponseOnce(JSON.stringify({ event_id: mockEventId }));
             
             const eventId = await log({
@@ -126,8 +126,8 @@ describe('Environment Variable Support', () => {
                 sessionId: 'test-session'
             });
             
-            expect(eventId).toBe(mockEventId);
-            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(eventId).toBeNull();
+            expect(console.error).toHaveBeenCalledWith('Event name is required');
         });
     });
     

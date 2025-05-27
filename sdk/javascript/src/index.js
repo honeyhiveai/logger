@@ -119,7 +119,6 @@ async function start(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
             console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
@@ -132,7 +131,6 @@ async function start(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
             console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
@@ -231,7 +229,6 @@ async function log(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
             console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
@@ -244,11 +241,20 @@ async function log(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
             console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
         
+        
+        if (!eventName) {
+            const error = "Event name is required";
+            if (verbose) {
+                console.error(error);
+                throw new Error(error);
+            }
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+            return null;
+        }
 
         const sessionId = providedSessionId || uuidv4();
         
@@ -258,7 +264,6 @@ async function log(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
             console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
@@ -306,7 +311,6 @@ async function log(params) {
         if (verbose) {
             throw error;
         }
-        console.error(`Failed to update event: ${error.message}`);
         console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
         return null;
     }
@@ -351,7 +355,7 @@ async function update(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return;
         }
         if (!eventId) {
@@ -360,7 +364,6 @@ async function update(params) {
                 console.error(error);
                 throw new Error(error);
             }
-            console.error(error);
             console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return;
         }
@@ -392,7 +395,6 @@ async function update(params) {
         if (verbose) {
             throw error;
         }
-        console.error(error.message);
         console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     }
 }
@@ -401,4 +403,4 @@ module.exports = {
     start,
     log,
     update
-};                        
+};                                  
