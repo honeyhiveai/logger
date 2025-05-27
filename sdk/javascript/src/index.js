@@ -109,8 +109,8 @@ async function start(params) {
     
     const apiKey = providedApiKey || process.env.HH_API_KEY;
     const project = providedProject || process.env.HH_PROJECT;
-    const serverUrl = process.env.HH_API_URL || providedServerUrl;
-    const source = process.env.HH_SOURCE || providedSource;
+    const serverUrl = providedServerUrl || process.env.HH_API_URL;
+    const source = providedSource || process.env.HH_SOURCE;
 
     try {
         if (!apiKey) {
@@ -120,6 +120,7 @@ async function start(params) {
                 throw new Error(error);
             }
             console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
         
@@ -132,6 +133,7 @@ async function start(params) {
                 throw new Error(error);
             }
             console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
 
@@ -177,6 +179,7 @@ async function start(params) {
             throw error;
         }
         console.error(error.message);
+        console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
         return null;
     }
 }
@@ -218,8 +221,8 @@ async function log(params) {
     
     const apiKey = providedApiKey || process.env.HH_API_KEY;
     const project = providedProject || process.env.HH_PROJECT;
-    const serverUrl = process.env.HH_API_URL || providedServerUrl;
-    const source = process.env.HH_SOURCE || providedSource;
+    const serverUrl = providedServerUrl || process.env.HH_API_URL;
+    const source = providedSource || process.env.HH_SOURCE;
 
     try {
         if (!apiKey) {
@@ -229,6 +232,7 @@ async function log(params) {
                 throw new Error(error);
             }
             console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
         
@@ -241,11 +245,23 @@ async function log(params) {
                 throw new Error(error);
             }
             console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return null;
         }
         
 
         const sessionId = providedSessionId || uuidv4();
+        
+        if (!sessionId) {
+            const error = "Session ID is undefined";
+            if (verbose) {
+                console.error(error);
+                throw new Error(error);
+            }
+            console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
+            return null;
+        }
 
         const makeRequest = async (signal) => {
             const response = await fetch(`${serverUrl}/events`, {
@@ -289,8 +305,9 @@ async function log(params) {
     } catch (error) {
         if (verbose) {
             throw error;
-            console.error(`Failed to update event: ${error.message}`);
         }
+        console.error(`Failed to update event: ${error.message}`);
+        console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
         return null;
     }
 }
@@ -325,7 +342,7 @@ async function update(params) {
     } = params;
     
     const apiKey = providedApiKey || process.env.HH_API_KEY;
-    const serverUrl = process.env.HH_API_URL || providedServerUrl;
+    const serverUrl = providedServerUrl || process.env.HH_API_URL;
 
     try {
         if (!apiKey) {
@@ -344,6 +361,7 @@ async function update(params) {
                 throw new Error(error);
             }
             console.error(error);
+            console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
             return;
         }
 
@@ -375,6 +393,7 @@ async function update(params) {
             throw error;
         }
         console.error(error.message);
+        console.error('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     }
 }
 
@@ -382,4 +401,4 @@ module.exports = {
     start,
     log,
     update
-};                
+};                        

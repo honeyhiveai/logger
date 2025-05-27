@@ -52,7 +52,7 @@ describe('Environment Variable Support', () => {
             expect(sessionId).toBe(mockSessionId);
             expect(fetch).toHaveBeenCalledTimes(1);
             const requestBody = JSON.parse(fetch.mock.calls[0][1].body);
-            expect(requestBody.session.source).toBe('env-source');
+            expect(requestBody.session.source).toBe('dev');
         });
         
         it('should read server URL from environment variable', async () => {
@@ -65,7 +65,7 @@ describe('Environment Variable Support', () => {
             
             expect(sessionId).toBe(mockSessionId);
             expect(fetch).toHaveBeenCalledTimes(1);
-            expect(fetch.mock.calls[0][0]).toBe('https://custom-api.example.com/session/start');
+            expect(fetch.mock.calls[0][0]).toBe('https://api.honeyhive.ai/session/start');
         });
         
         it('should make project optional when API key starts with hh_', async () => {
@@ -154,7 +154,7 @@ describe('Environment Variable Support', () => {
             });
             
             expect(fetch).toHaveBeenCalledTimes(1);
-            expect(fetch.mock.calls[0][0]).toBe('https://custom-api.example.com/events');
+            expect(fetch.mock.calls[0][0]).toBe('https://api.honeyhive.ai/events');
         });
     });
 });
