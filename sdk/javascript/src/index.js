@@ -94,18 +94,23 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
  */
 async function start(params) {
     const {
-        apiKey,
-        project,
+        apiKey: providedApiKey,
+        project: providedProject,
         sessionName,
-        source = "dev",
+        source: providedSource = "dev",
         config = {},
         inputs = {},
         metadata = {},
         userProperties = {},
         sessionId,
-        serverUrl = "https://api.honeyhive.ai",
+        serverUrl: providedServerUrl = "https://api.honeyhive.ai",
         verbose = false
     } = params;
+    
+    const apiKey = providedApiKey || process.env.HH_API_KEY;
+    const project = providedProject || process.env.HH_PROJECT;
+    const serverUrl = process.env.HH_API_URL || providedServerUrl;
+    const source = process.env.HH_SOURCE || providedSource;
 
     try {
         if (!apiKey) {
@@ -117,7 +122,10 @@ async function start(params) {
             console.error(error);
             return null;
         }
-        if (!project) {
+        
+        const projectRequired = !apiKey || !apiKey.startsWith('hh_');
+        
+        if (!project && projectRequired) {
             const error = "Project name is required";
             if (verbose) {
                 console.error(error);
@@ -193,20 +201,25 @@ async function start(params) {
  */
 async function log(params) {
     const {
-        apiKey,
-        project,
+        apiKey: providedApiKey,
+        project: providedProject,
         sessionId: providedSessionId,
         eventName,
         eventType = "tool",
-        source = "dev",
+        source: providedSource = "dev",
         durationMs = 10,
         config = {},
         inputs = {},
         outputs = {},
         metadata = {},
-        serverUrl = "https://api.honeyhive.ai",
+        serverUrl: providedServerUrl = "https://api.honeyhive.ai",
         verbose = false
     } = params;
+    
+    const apiKey = providedApiKey || process.env.HH_API_KEY;
+    const project = providedProject || process.env.HH_PROJECT;
+    const serverUrl = process.env.HH_API_URL || providedServerUrl;
+    const source = process.env.HH_SOURCE || providedSource;
 
     try {
         if (!apiKey) {
@@ -218,7 +231,10 @@ async function log(params) {
             console.error(error);
             return null;
         }
-        if (!project) {
+        
+        const projectRequired = !apiKey || !apiKey.startsWith('hh_');
+        
+        if (!project && projectRequired) {
             const error = "Project name is required";
             if (verbose) {
                 console.error(error);
@@ -228,15 +244,6 @@ async function log(params) {
             return null;
         }
         
-        if (!eventName) {
-            const error = "Event name is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
-            console.error(error);
-            return null;
-        }
 
         const sessionId = providedSessionId || uuidv4();
 
@@ -308,14 +315,17 @@ async function log(params) {
  */
 async function update(params) {
     const {
-        apiKey,
+        apiKey: providedApiKey,
         eventId,
         feedback,
         metrics,
         metadata,
-        serverUrl = "https://api.honeyhive.ai",
+        serverUrl: providedServerUrl = "https://api.honeyhive.ai",
         verbose = false
     } = params;
+    
+    const apiKey = providedApiKey || process.env.HH_API_KEY;
+    const serverUrl = process.env.HH_API_URL || providedServerUrl;
 
     try {
         if (!apiKey) {
@@ -372,4 +382,4 @@ module.exports = {
     start,
     log,
     update
-}; 
+};                
