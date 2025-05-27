@@ -215,6 +215,24 @@ This is useful when:
    - Or use the custom CA bundle approach with your proxy's certificate
    - Ensure your VPN is properly configured to handle HTTPS traffic
 
+## Development
+
+### Testing
+
+Run the test suite:
+
+```bash
+pytest
+```
+
+### Linting
+
+Check code style with flake8 (if installed):
+
+```bash
+flake8 honeyhive_logger
+```
+
 ## Documentation
 
 For detailed documentation, please visit [https://docs.honeyhive.ai](https://docs.honeyhive.ai)
