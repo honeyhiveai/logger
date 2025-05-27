@@ -60,4 +60,4 @@ jobs:
         echo 'HH_PROJECT="test_project"' >> sdk/python/.env
         echo 'HH_API_URL="https://api.honeyhive.ai"' >> sdk/python/.env
     - name: Run tests
-      run: cd sdk/python && python -m pytest test_logger.py -v
+      run: cd sdk/python && python -m pytest test_logger_ci.py -v
