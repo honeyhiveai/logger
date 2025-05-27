@@ -30,7 +30,7 @@ describe('HoneyHive Logger', () => {
       });
 
       expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('API key is required');
+      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     });
 
     it('should throw error when apiKey is missing (verbose=true)', async () => {
@@ -48,7 +48,7 @@ describe('HoneyHive Logger', () => {
       });
 
       expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('Project name is required');
+      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     });
 
     it('should throw error when project is missing (verbose=true)', async () => {
@@ -147,7 +147,7 @@ describe('HoneyHive Logger', () => {
         apiKey: mockApiKey,
       });
 
-      expect(console.error).toHaveBeenCalledWith('Event ID is required');
+      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     });
 
     it('should throw error when required parameters are missing (verbose=true)', async () => {
@@ -182,4 +182,4 @@ describe('HoneyHive Logger', () => {
       ).rejects.toThrow('Error message');
     });
   });
-});
+});    

@@ -85,7 +85,7 @@ describe('Environment Variable Support', () => {
       });
 
       expect(result).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('Project name is required');
+      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     });
   });
 
@@ -127,7 +127,7 @@ describe('Environment Variable Support', () => {
       });
 
       expect(eventId).toBeNull();
-      expect(console.error).toHaveBeenCalledWith('Event name is required');
+      expect(console.error).toHaveBeenCalledWith('\x1b[31mHoneyHive logging error. Pass verbose=true for details.\x1b[0m');
     });
   });
 
