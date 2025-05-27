@@ -177,10 +177,36 @@ Each error includes detailed information about what went wrong and how to fix it
 - Network connectivity issues
 - Server-side errors
 
+## Development
+
+### Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+### Linting
+
+Check code style with ESLint:
+
+```bash
+npm run lint
+```
+
+### Formatting
+
+Format code with Prettier:
+
+```bash
+npm run format
+```
+
 ## Documentation
 
 For detailed documentation, please visit [https://docs.honeyhive.ai](https://docs.honeyhive.ai)
 
 ## License
 
-MIT License 
+MIT License  

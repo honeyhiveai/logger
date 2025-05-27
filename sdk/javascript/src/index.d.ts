@@ -2,64 +2,64 @@
  * Configuration options for retry mechanism
  */
 export interface RetryOptions {
-    maxRetries?: number;
-    baseDelay?: number;
-    maxDelay?: number;
-    timeout?: number;
-    verbose?: boolean;
+  maxRetries?: number;
+  baseDelay?: number;
+  maxDelay?: number;
+  timeout?: number;
+  verbose?: boolean;
 }
 
 /**
  * Session configuration parameters
  */
 export interface SessionParams {
-    apiKey?: string;
-    project?: string;
-    sessionName?: string;
-    source?: string;
-    config?: Record<string, any>;
-    inputs?: Record<string, any>;
-    metadata?: Record<string, any>;
-    userProperties?: Record<string, any>;
-    sessionId?: string;
-    serverUrl?: string;
-    verbose?: boolean;
+  apiKey?: string;
+  project?: string;
+  sessionName?: string;
+  source?: string;
+  config?: Record<string, any>;
+  inputs?: Record<string, any>;
+  metadata?: Record<string, any>;
+  userProperties?: Record<string, any>;
+  sessionId?: string;
+  serverUrl?: string;
+  verbose?: boolean;
 }
 
 /**
  * Event logging parameters
  */
 export interface LogParams {
-    apiKey?: string;
-    project?: string;
-    sessionId?: string;
-    eventName: string;
-    eventType?: 'model' | 'tool' | 'chain';
-    source?: string;
-    durationMs?: number;
-    config?: Record<string, any>;
-    inputs?: Record<string, any>;
-    outputs?: Record<string, any>;
-    metadata?: Record<string, any>;
-    serverUrl?: string;
-    verbose?: boolean;
+  apiKey?: string;
+  project?: string;
+  sessionId?: string;
+  eventName: string;
+  eventType?: 'model' | 'tool' | 'chain';
+  source?: string;
+  durationMs?: number;
+  config?: Record<string, any>;
+  inputs?: Record<string, any>;
+  outputs?: Record<string, any>;
+  metadata?: Record<string, any>;
+  serverUrl?: string;
+  verbose?: boolean;
 }
 
 /**
  * Event update parameters
  */
 export interface UpdateParams {
-    apiKey?: string;
-    eventId: string;
-    metadata?: Record<string, any>;
-    feedback?: Record<string, any>;
-    metrics?: Record<string, any>;
-    config?: Record<string, any>;
-    outputs?: Record<string, any>;
-    userProperties?: Record<string, any>;
-    durationMs?: number;
-    serverUrl?: string;
-    verbose?: boolean;
+  apiKey?: string;
+  eventId: string;
+  metadata?: Record<string, any>;
+  feedback?: Record<string, any>;
+  metrics?: Record<string, any>;
+  config?: Record<string, any>;
+  outputs?: Record<string, any>;
+  userProperties?: Record<string, any>;
+  durationMs?: number;
+  serverUrl?: string;
+  verbose?: boolean;
 }
 
 /**
@@ -83,4 +83,4 @@ declare function log(params: LogParams): Promise<string | undefined>;
  */
 declare function update(params: UpdateParams): Promise<void>;
 
-export { start, log, update }; 
+export { start, log, update };
