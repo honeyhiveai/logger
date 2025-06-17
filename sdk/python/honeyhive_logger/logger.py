@@ -48,6 +48,7 @@ def _retry_with_backoff(
             if ca_bundle_path:
                 import ssl
                 ssl_context = ssl.create_default_context(cafile=ca_bundle_path)
+                ssl_context.verify_flags |= ssl.VERIFY_X509_STRICT
                 # Monkey patch the default context
                 ssl._create_default_https_context = lambda: ssl_context
             
