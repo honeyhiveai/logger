@@ -549,6 +549,63 @@ def test_concurrent_updates():
     assert event.metrics is not None
     assert "metric" in event.metrics
 
+def test_unverified_ssl_request():
+    """Test that requests work correctly with SSL verification disabled"""
+    # Start a new session with verify=False
+    session_id = start(
+        api_key=os.environ["HH_API_KEY"],
+        project=os.environ["HH_PROJECT"],
+        source="sdk_test",
+        session_name="test_unverified_ssl",
+        server_url=os.environ["HH_API_URL"],
+        verify=False
+    )
+    
+    # Verify session_id is a valid UUID
+    assert session_id is not None
+    try:
+        uuid.UUID(session_id)
+    except ValueError:
+        assert False, "session_id is not a valid UUID"
+    
+    # Log an event with verify=False
+    event_id = log(
+        session_id=session_id,
+        event_name="test_unverified_event",
+        event_type="tool",
+        verify=False
+    )
+    
+    # Update the event with verify=False
+    update(
+        event_id=event_id,
+        metadata={"test": "unverified"},
+        verify=False
+    )
+    
+    # Wait for update to be processed
+    time.sleep(5)
+    
+    # Verify event exists in API
+    sdk = honeyhive.HoneyHive(bearer_auth=os.environ["HH_API_KEY"], server_url=os.environ["HH_API_URL"])
+    req = operations.GetEventsRequestBody(
+        project=os.environ["HH_PROJECT"],
+        filters=[
+            components.EventFilter(
+                field="event_id",
+                value=event_id,
+                operator=components.Operator.IS,
+            )
+        ],
+    )
+    res = sdk.events.get_events(request=req)
+    assert res.status_code == 200
+    assert res.object is not None
+    assert len(res.object.events) == 1
+    event = res.object.events[0]
+    assert event.event_name == "test_unverified_event"
+    assert event.metadata.get("test") == "unverified"
+
 if __name__ == "__main__":
     test_start_session()
     test_start_session_with_metadata()
@@ -564,3 +621,4 @@ if __name__ == "__main__":
     test_concurrent_logging()
     test_concurrent_sessions()
     test_concurrent_updates()
+    test_unverified_ssl_request()

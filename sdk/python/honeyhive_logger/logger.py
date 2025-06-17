@@ -17,7 +17,8 @@ def _retry_with_backoff(
     max_delay: float = 5.0,
     timeout: float = 5.0,
     verbose: bool = False,
-    ca_bundle_path: str = None
+    ca_bundle_path: str = None,
+    verify: bool = True
 ) -> T:
     """
     Retry a function with exponential backoff and jitter.
@@ -30,6 +31,7 @@ def _retry_with_backoff(
         timeout: Socket timeout in seconds
         verbose: Whether to print debug information
         ca_bundle_path: Path to a custom CA bundle file. If None, uses system default.
+        verify: Whether to verify SSL certificates. If False, creates an unverified context.
         
     Returns:
         The result of the function call
@@ -39,21 +41,23 @@ def _retry_with_backoff(
     """
     last_exception = None
     
+    # Create SSL context - either default or with custom CA bundle
+    import ssl
+    if not verify:
+        ssl_context = ssl._create_unverified_context()
+    elif ca_bundle_path:
+        ssl_context = ssl.create_default_context(cafile=ca_bundle_path)
+        ssl_context.verify_flags |= ssl.VERIFY_X509_STRICT
+    else:
+        ssl_context = ssl.create_default_context()
+    
     for attempt in range(max_retries + 1):
         try:
             # Set socket timeout
             socket.setdefaulttimeout(timeout)
             
-            # Create SSL context with custom CA bundle if provided
-            if ca_bundle_path:
-                import ssl
-                ssl_context = ssl.create_default_context(cafile=ca_bundle_path)
-                ssl_context.verify_flags |= ssl.VERIFY_X509_STRICT
-                # Monkey patch the default context
-                ssl._create_default_https_context = lambda: ssl_context
-            
-            # Try the function
-            return http_request_func()
+            # Try the function with SSL context
+            return http_request_func(ssl_context)
             
         except (urllib.error.URLError, socket.timeout) as e:
             last_exception = e
@@ -90,7 +94,8 @@ def start(
     session_id: str = None,
     server_url: str = 'https://api.honeyhive.ai',
     verbose: bool = False,
-    ca_bundle_path: str = None
+    ca_bundle_path: str = None,
+    verify: bool = True
 ) -> str:
     """
     Start a new session with HoneyHive using only built-in Python packages.
@@ -112,6 +117,7 @@ def start(
         server_url (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
         verbose (bool, optional): Print detailed error messages for debugging. Defaults to False.
         ca_bundle_path (str, optional): Path to a custom CA bundle file. If None, uses system default.
+        verify (bool, optional): Whether to verify SSL certificates. If False, creates an unverified context. Defaults to True.
         
     Returns:
         str: The session ID (UUIDv4)
@@ -163,7 +169,7 @@ def start(
         if verbose:
             print("POST /session/start request made with data", data)
             
-        def make_request():
+        def make_request(ssl_context):
             # Create request
             req = urllib.request.Request(
                 f"{server_url}/session/start",
@@ -176,7 +182,7 @@ def start(
             )
 
             # Send request
-            with urllib.request.urlopen(req, data=json.dumps(data).encode()) as response:
+            with urllib.request.urlopen(req, data=json.dumps(data).encode(), context=ssl_context) as response:
                 if response.status != 200:
                     error_msg = response.read().decode()
                     raise Exception(
@@ -198,7 +204,7 @@ def start(
                 print("\033[38;5;208mHoneyHive is initialized\033[0m") 
                 return response_data["session_id"]
 
-        return _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path)
+        return _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path, verify=verify)
 
     except Exception as e:
         print("HoneyHive: Failed to start session. Please enable verbose mode to debug.")
@@ -220,7 +226,8 @@ def log(
     duration_ms: int = 10,
     server_url: str = 'https://api.honeyhive.ai',
     verbose: bool = False,
-    ca_bundle_path: str = None
+    ca_bundle_path: str = None,
+    verify: bool = True
 ) -> str:
     """
     Log an event to HoneyHive using only built-in Python packages.
@@ -244,6 +251,7 @@ def log(
         server_url (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
         verbose (bool, optional): Print detailed error messages for debugging. Defaults to False.
         ca_bundle_path (str, optional): Path to a custom CA bundle file. If None, uses system default.
+        verify (bool, optional): Whether to verify SSL certificates. If False, creates an unverified context. Defaults to True.
         
     Returns:
         str: The event ID (UUIDv4)
@@ -314,7 +322,7 @@ def log(
         if verbose:
             print("POST /events request made with data", data)
             
-        def make_request():
+        def make_request(ssl_context):
             # Create request
             req = urllib.request.Request(
                 f"{server_url}/events",
@@ -327,7 +335,7 @@ def log(
             )
 
             # Send request
-            with urllib.request.urlopen(req, data=json.dumps(data).encode()) as response:
+            with urllib.request.urlopen(req, data=json.dumps(data).encode(), context=ssl_context) as response:
                 if response.status != 200:
                     error_msg = response.read().decode()
                     raise Exception(
@@ -349,7 +357,7 @@ def log(
                 
                 return event_id
 
-        return _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path)
+        return _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path, verify=verify)
 
     except Exception as e:
         print("HoneyHive: Failed to log event. Please enable verbose mode to debug.")
@@ -369,7 +377,8 @@ def update(
     duration_ms: int = None,
     server_url: str = 'https://api.honeyhive.ai',
     verbose: bool = False,
-    ca_bundle_path: str = None
+    ca_bundle_path: str = None,
+    verify: bool = True
 ) -> None:
     """
     Update an event or session with additional data using only built-in Python packages.
@@ -391,6 +400,7 @@ def update(
         server_url (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
         verbose (bool, optional): Print detailed error messages for debugging. Defaults to False.
         ca_bundle_path (str, optional): Path to a custom CA bundle file. If None, uses system default.
+        verify (bool, optional): Whether to verify SSL certificates. If False, creates an unverified context. Defaults to True.
         
     Raises:
         Exception: If required parameters are missing or invalid
@@ -461,7 +471,7 @@ def update(
             print(f"\nUpdating event {event_id}")
             print("Request data:", json.dumps(data, indent=2))
             
-        def make_request():
+        def make_request(ssl_context):
             # Create request
             req = urllib.request.Request(
                 f"{server_url}/events",
@@ -474,7 +484,7 @@ def update(
             )
 
             # Send request
-            with urllib.request.urlopen(req, data=json.dumps(data).encode()) as response:
+            with urllib.request.urlopen(req, data=json.dumps(data).encode(), context=ssl_context) as response:
                 if response.status != 200:
                     error_msg = response.read().decode()
                     if verbose:
@@ -491,7 +501,7 @@ def update(
                     print(f"Successfully updated event {event_id}")
                     print("Response:", response.read().decode())
 
-        _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path)
+        _retry_with_backoff(make_request, verbose=verbose, ca_bundle_path=ca_bundle_path, verify=verify)
 
     except Exception as e:
         print("HoneyHive: Failed to update event. Please enable verbose mode to debug.")
