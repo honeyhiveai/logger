@@ -14,6 +14,7 @@ npm install @honeyhive/logger
 const { start, log, update } = require('@honeyhive/logger');
 
 // Start a new session
+// Tip: Copy paste the values from the in-platform quickstart here
 const sessionId = await start({
     apiKey: "your-api-key",
     project: "your-project"
@@ -22,6 +23,7 @@ const sessionId = await start({
 // Log an event
 const eventId = await log({
     sessionId: sessionId,
+    apiKey: "your-api-key",
     eventName: "model_inference",
     eventType: "model",
     inputs: { prompt: "Hello world" },
@@ -31,10 +33,13 @@ const eventId = await log({
 // Update an event with additional data
 await update({
     eventId: eventId, // Can also pass sessionId to update a session
+    apiKey: "your-api-key",
     feedback: { rating: 5 },
     metrics: { latency: 100 }
 });
 ```
+
+Make sure to set `serverUrl` correctly if you are on a dedicated or on-prem deployment.
 
 ## API Reference
 
@@ -102,6 +107,7 @@ Logs an event to HoneyHive.
 ```javascript
 const eventId = await log({
     sessionId: "your-session-id",
+    apiKey: "your-api-key",
     eventName: "model_inference",
     eventType: "model",
     config: {
@@ -154,6 +160,7 @@ await update({
 // Update an event
 await update({
     eventId: eventId,
+    apiKey: "your-api-key",
     feedback: {
         rating: 5,
         comment: "Great response!"

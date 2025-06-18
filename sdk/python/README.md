@@ -14,6 +14,7 @@ pip install honeyhive-logger
 from honeyhive_logger import start, log, update
 
 # Start a new session
+# Tip: Copy paste the values from the in-platform quickstart here
 session_id = start(
     api_key="your-api-key",
     project="your-project"
@@ -22,6 +23,7 @@ session_id = start(
 # Log an event
 event_id = log(
     session_id=session_id,
+    api_key="your-api-key",
     event_name="model_inference",
     event_type="model",
     inputs={"prompt": "Hello world"},
@@ -31,10 +33,13 @@ event_id = log(
 # Update an event with additional data
 update(
     event_id=event_id, # Can also pass session_id to update a session
+    api_key="your-api-key",
     feedback={"rating": 5},
     metrics={"latency": 100}
 )
 ```
+
+Make sure to set `server_url` correctly if you are on a dedicated or on-prem deployment.
 
 ## API Reference
 
