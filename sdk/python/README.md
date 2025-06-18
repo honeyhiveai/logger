@@ -54,6 +54,8 @@ Starts a new session with HoneyHive.
 - `session_id` (str, optional): A valid UUIDv4 for the session to correlate with your logs. If not provided, one will be generated.
 - `server_url` (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
 - `verbose` (bool, optional): Print detailed error messages for debugging. Defaults to False.
+- `verify` (bool, optional): Whether to verify SSL certificates. Defaults to True. Set to False to disable SSL verification (not recommended for production).
+- `ca_bundle_path` (str, optional): Path to a custom CA bundle file for SSL certificate verification.
 
 **Returns:**
 - `str`: The session ID (UUIDv4)
@@ -90,6 +92,8 @@ Logs an event to HoneyHive.
 - `duration_ms` (int, optional): Duration of the event in milliseconds. If not provided, will be set to 10.
 - `server_url` (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
 - `verbose` (bool, optional): Print detailed error messages for debugging. Defaults to False.
+- `verify` (bool, optional): Whether to verify SSL certificates. Defaults to True. Set to False to disable SSL verification (not recommended for production).
+- `ca_bundle_path` (str, optional): Path to a custom CA bundle file for SSL certificate verification.
 
 **Returns:**
 - `str`: The event ID (UUIDv4)
@@ -131,6 +135,8 @@ Updates an event or session with additional data.
 - `duration_ms` (int, optional): Duration of the event in milliseconds.
 - `server_url` (str, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
 - `verbose` (bool, optional): Print detailed error messages for debugging. Defaults to False.
+- `verify` (bool, optional): Whether to verify SSL certificates. Defaults to True. Set to False to disable SSL verification (not recommended for production).
+- `ca_bundle_path` (str, optional): Path to a custom CA bundle file for SSL certificate verification.
 
 **Returns:**
 - `None`
