@@ -197,6 +197,20 @@ This is useful when:
 - Your system's certificate store is outdated
 - You need to trust specific self-signed certificates
 
+### Disabling SSL Verification
+
+You can disable SSL certificate verification by setting `verify=False`:
+
+```python
+start(
+    api_key="your-api-key",
+    project="your-project",
+    verify=False
+)
+```
+
+⚠️ **Warning**: Disabling SSL verification is not recommended for production use as it makes your connections vulnerable to man-in-the-middle attacks. Only use this option for development or testing purposes.
+
 ### Other Solutions
 
 1. **Update System Certificates**:

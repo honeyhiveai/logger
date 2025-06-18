@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
  * @param {number} [options.maxDelay=5.0] - Maximum delay in seconds
  * @param {number} [options.timeout=5.0] - Socket timeout in seconds
  * @param {boolean} [options.verbose=false] - Whether to print debug information
+ * @param {boolean} [options.verify=true] - Whether to verify SSL certificates
  * @returns {Promise<any>} The result of the function call
  */
 async function _retry_with_backoff(httpRequestFunc, options = {}) {
@@ -17,7 +18,8 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
         baseDelay = 1.0,
         maxDelay = 5.0,
         timeout = 5.0,
-        verbose = false
+        verbose = false,
+        verify = true
     } = options;
 
     let lastException = null;
@@ -28,7 +30,7 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeout * 1000);
 
-            const result = await httpRequestFunc(controller.signal);
+            const result = await httpRequestFunc(controller.signal, verify);
             clearTimeout(timeoutId);
             return result;
         } catch (error) {
@@ -45,12 +47,16 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
                 (error.status >= 500 && error.status < 600) || // Server errors
                 error.status === 429 || // Rate limiting
                 error.status === 408; // Request timeout
+            
+            if (verbose) {
+                console.error("retry attempt", attempt, "error", error);
+            }
 
             if (!isRetryableError || attempt === maxRetries) {
                 if (verbose) {
                     throw error;
                 } else {
-                    console.error(error.message || 'Error message');
+                    console.error(error.message);
                     return null;
                 }
             }
@@ -60,10 +66,6 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
             const jitter = Math.random() * delay * 0.1; // Add up to 10% jitter
             const totalDelay = delay + jitter;
 
-            if (verbose) {
-                console.error(error.message);
-            }
-
             await new Promise(resolve => setTimeout(resolve, totalDelay * 1000));
         }
     }
@@ -71,7 +73,7 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
     if (verbose) {
         throw lastException;
     } else {
-        console.error(lastException.message || 'Error message');
+        console.error(lastException.message);
         return null;
     }
 }
@@ -90,6 +92,7 @@ async function _retry_with_backoff(httpRequestFunc, options = {}) {
  * @param {string} [params.sessionId] - A valid UUIDv4 for the session to correlate with your logs. If not provided, one will be generated.
  * @param {string} [params.serverUrl="https://api.honeyhive.ai"] - HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
  * @param {boolean} [params.verbose=false] - Print detailed error messages for debugging. Defaults to false.
+ * @param {boolean} [params.verify=true] - Whether to verify SSL certificates. Defaults to true.
  * @returns {Promise<string>} The session ID (UUIDv4)
  */
 async function start(params) {
@@ -104,30 +107,23 @@ async function start(params) {
         userProperties = {},
         sessionId,
         serverUrl = "https://api.honeyhive.ai",
-        verbose = false
+        verbose = false,
+        verify = true
     } = params;
 
     try {
         if (!apiKey) {
             const error = "API key is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return null;
+            throw new Error(error);
         }
         if (!project) {
             const error = "Project name is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return null;
+            throw new Error(error);
         }
 
-        const makeRequest = async (signal) => {
+        const makeRequest = async (signal, verify) => {
             const response = await fetch(`${serverUrl}/session/start`, {
                 method: 'POST',
                 headers: {
@@ -147,7 +143,9 @@ async function start(params) {
                         start_time: Date.now()
                     }
                 }),
-                signal
+                signal,
+                // @ts-ignore - agent is a valid option in Node.js
+                agent: verify ? undefined : new (require('https').Agent)({ rejectUnauthorized: false })
             });
 
             if (!response.ok) {
@@ -163,7 +161,7 @@ async function start(params) {
             return data.session_id;
         };
 
-        return await _retry_with_backoff(makeRequest, { verbose });
+        return await _retry_with_backoff(makeRequest, { verbose, verify });
     } catch (error) {
         if (verbose) {
             throw error;
@@ -189,6 +187,7 @@ async function start(params) {
  * @param {number} [params.durationMs=10] - Duration of the event in milliseconds. If not provided, will be set to 10.
  * @param {string} [params.serverUrl="https://api.honeyhive.ai"] - HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
  * @param {boolean} [params.verbose=false] - Print detailed error messages for debugging. Defaults to false.
+ * @param {boolean} [params.verify=true] - Whether to verify SSL certificates. Defaults to true.
  * @returns {Promise<string>} The event ID (UUIDv4)
  */
 async function log(params) {
@@ -205,42 +204,30 @@ async function log(params) {
         outputs = {},
         metadata = {},
         serverUrl = "https://api.honeyhive.ai",
-        verbose = false
+        verbose = false,
+        verify = true
     } = params;
 
     try {
         if (!apiKey) {
             const error = "API key is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return null;
+            throw new Error(error);
         }
         if (!project) {
             const error = "Project name is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return null;
+            throw new Error(error);
         }
-        
         if (!eventName) {
             const error = "Event name is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return null;
+            throw new Error(error);
         }
 
         const sessionId = providedSessionId || uuidv4();
 
-        const makeRequest = async (signal) => {
+        const makeRequest = async (signal, verify) => {
             const response = await fetch(`${serverUrl}/events`, {
                 method: 'POST',
                 headers: {
@@ -262,7 +249,9 @@ async function log(params) {
                         duration: durationMs
                     }
                 }),
-                signal
+                signal,
+                // @ts-ignore - agent is a valid option in Node.js
+                agent: verify ? undefined : new (require('https').Agent)({ rejectUnauthorized: false })
             });
 
             if (!response.ok) {
@@ -278,12 +267,12 @@ async function log(params) {
             return data.event_id;
         };
 
-        return await _retry_with_backoff(makeRequest, { verbose });
+        return await _retry_with_backoff(makeRequest, { verbose, verify });
     } catch (error) {
         if (verbose) {
             throw error;
-            console.error(`Failed to update event: ${error.message}`);
         }
+        console.error(error.message);
         return null;
     }
 }
@@ -304,6 +293,7 @@ async function log(params) {
  * @param {number} [params.durationMs] - Duration of the event in milliseconds.
  * @param {string} [params.serverUrl="https://api.honeyhive.ai"] - HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
  * @param {boolean} [params.verbose=false] - Print detailed error messages for debugging. Defaults to false.
+ * @param {boolean} [params.verify=true] - Whether to verify SSL certificates. Defaults to true.
  * @returns {Promise<void>}
  */
 async function update(params) {
@@ -313,31 +303,43 @@ async function update(params) {
         feedback,
         metrics,
         metadata,
+        config,
+        outputs,
+        userProperties,
+        durationMs,
         serverUrl = "https://api.honeyhive.ai",
-        verbose = false
+        verbose = false,
+        verify = true
     } = params;
 
     try {
         if (!apiKey) {
             const error = "API key is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return;
+            throw new Error(error);
         }
         if (!eventId) {
             const error = "Event ID is required";
-            if (verbose) {
-                console.error(error);
-                throw new Error(error);
-            }
             console.error(error);
-            return;
+            throw new Error(error);
         }
 
-        const makeRequest = async (signal) => {
+        const updateRequest = {
+            url: `${serverUrl}/events`,
+            event_id: eventId,
+            metadata: metadata ?? null,
+            feedback: feedback ?? null,
+            metrics: metrics ?? null,
+            outputs: outputs ?? null,
+            duration: durationMs ?? null,
+            config: config ?? null,
+        };
+
+        if (verbose) {
+            console.log("update request", updateRequest);
+        }
+
+        const makeRequest = async (signal, verify) => {
             const response = await fetch(`${serverUrl}/events`, {
                 method: 'PUT',
                 headers: {
@@ -346,11 +348,17 @@ async function update(params) {
                 },
                 body: JSON.stringify({
                     event_id: eventId,
-                    feedback,
-                    metrics,
-                    metadata
+                    metadata: metadata ?? null,
+                    feedback: feedback ?? null,
+                    metrics: metrics ?? null,
+                    outputs: outputs ?? null,
+                    duration: durationMs ?? null,
+                    config: config ?? null,
+                    user_properties: userProperties ?? null
                 }),
-                signal
+                signal,
+                // @ts-ignore - agent is a valid option in Node.js
+                agent: verify ? undefined : new (require('https').Agent)({ rejectUnauthorized: false })
             });
 
             if (!response.ok) {
@@ -359,7 +367,7 @@ async function update(params) {
             }
         };
 
-        await _retry_with_backoff(makeRequest, { verbose });
+        await _retry_with_backoff(makeRequest, { verbose, verify });
     } catch (error) {
         if (verbose) {
             throw error;

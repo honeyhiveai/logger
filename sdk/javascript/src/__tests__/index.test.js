@@ -1,4 +1,5 @@
 const { start, log, update } = require('../index');
+const https = require('https');
 
 describe('HoneyHive Logger', () => {
     const mockApiKey = 'test-api-key';
@@ -9,6 +10,14 @@ describe('HoneyHive Logger', () => {
     beforeEach(() => {
         fetch.resetMocks();
         console.error = jest.fn(); // Mock console.error
+        // Mock https.Agent
+        jest.spyOn(https, 'Agent').mockImplementation((options) => ({
+            rejectUnauthorized: options.rejectUnauthorized
+        }));
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     describe('start', () => {
@@ -77,6 +86,37 @@ describe('HoneyHive Logger', () => {
                 verbose: true
             })).rejects.toThrow('Error message');
         });
+
+        it('should use unverified SSL context when verify=false', async () => {
+            fetch.mockResponseOnce(JSON.stringify({ session_id: mockSessionId }));
+
+            await start({
+                apiKey: mockApiKey,
+                project: mockProject,
+                verify: false
+            });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const fetchCall = fetch.mock.calls[0][1];
+            expect(fetchCall.agent).toBeDefined();
+            expect(fetchCall.agent.rejectUnauthorized).toBe(false);
+            expect(https.Agent).toHaveBeenCalledWith({ rejectUnauthorized: false });
+        });
+
+        it('should use default SSL context when verify=true', async () => {
+            fetch.mockResponseOnce(JSON.stringify({ session_id: mockSessionId }));
+
+            await start({
+                apiKey: mockApiKey,
+                project: mockProject,
+                verify: true
+            });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const fetchCall = fetch.mock.calls[0][1];
+            expect(fetchCall.agent).toBeUndefined();
+            expect(https.Agent).not.toHaveBeenCalled();
+        });
     });
 
     describe('log', () => {
@@ -118,6 +158,41 @@ describe('HoneyHive Logger', () => {
                 eventName: 'test-event',
                 verbose: true
             })).rejects.toThrow('Error message');
+        });
+
+        it('should use unverified SSL context when verify=false', async () => {
+            fetch.mockResponseOnce(JSON.stringify({ event_id: mockEventId }));
+
+            await log({
+                apiKey: mockApiKey,
+                project: mockProject,
+                sessionId: mockSessionId,
+                eventName: 'test-event',
+                verify: false
+            });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const fetchCall = fetch.mock.calls[0][1];
+            expect(fetchCall.agent).toBeDefined();
+            expect(fetchCall.agent.rejectUnauthorized).toBe(false);
+            expect(https.Agent).toHaveBeenCalledWith({ rejectUnauthorized: false });
+        });
+
+        it('should use default SSL context when verify=true', async () => {
+            fetch.mockResponseOnce(JSON.stringify({ event_id: mockEventId }));
+
+            await log({
+                apiKey: mockApiKey,
+                project: mockProject,
+                sessionId: mockSessionId,
+                eventName: 'test-event',
+                verify: true
+            });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const fetchCall = fetch.mock.calls[0][1];
+            expect(fetchCall.agent).toBeUndefined();
+            expect(https.Agent).not.toHaveBeenCalled();
         });
     });
 
@@ -168,6 +243,37 @@ describe('HoneyHive Logger', () => {
                 eventId: mockEventId,
                 verbose: true
             })).rejects.toThrow('Error message');
+        });
+
+        it('should use unverified SSL context when verify=false', async () => {
+            fetch.mockResponseOnce('', { status: 200 });
+
+            await update({
+                apiKey: mockApiKey,
+                eventId: mockEventId,
+                verify: false
+            });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const fetchCall = fetch.mock.calls[0][1];
+            expect(fetchCall.agent).toBeDefined();
+            expect(fetchCall.agent.rejectUnauthorized).toBe(false);
+            expect(https.Agent).toHaveBeenCalledWith({ rejectUnauthorized: false });
+        });
+
+        it('should use default SSL context when verify=true', async () => {
+            fetch.mockResponseOnce('', { status: 200 });
+
+            await update({
+                apiKey: mockApiKey,
+                eventId: mockEventId,
+                verify: true
+            });
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const fetchCall = fetch.mock.calls[0][1];
+            expect(fetchCall.agent).toBeUndefined();
+            expect(https.Agent).not.toHaveBeenCalled();
         });
     });
 }); 

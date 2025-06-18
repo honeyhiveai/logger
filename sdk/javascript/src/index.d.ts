@@ -7,6 +7,7 @@ export interface RetryOptions {
     maxDelay?: number;
     timeout?: number;
     verbose?: boolean;
+    verify?: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export interface SessionParams {
     sessionId?: string;
     serverUrl?: string;
     verbose?: boolean;
+    verify?: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ export interface LogParams {
     metadata?: Record<string, any>;
     serverUrl?: string;
     verbose?: boolean;
+    verify?: boolean;
 }
 
 /**
@@ -60,6 +63,7 @@ export interface UpdateParams {
     durationMs?: number;
     serverUrl?: string;
     verbose?: boolean;
+    verify?: boolean;
 }
 
 /**

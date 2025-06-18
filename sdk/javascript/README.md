@@ -55,6 +55,7 @@ Starts a new session with HoneyHive.
   - `sessionId` (string, optional): A valid UUIDv4 for the session to correlate with your logs. If not provided, one will be generated.
   - `serverUrl` (string, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
   - `verbose` (boolean, optional): Print detailed error messages for debugging. Defaults to false.
+  - `verify` (boolean, optional): Whether to verify SSL certificates. Defaults to true. Set to false to disable SSL verification (not recommended for production).
 
 **Returns:**
 - `Promise<string>`: The session ID (UUIDv4)
@@ -92,6 +93,7 @@ Logs an event to HoneyHive.
   - `durationMs` (number, optional): Duration of the event in milliseconds. If not provided, will be set to 10.
   - `serverUrl` (string, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
   - `verbose` (boolean, optional): Print detailed error messages for debugging. Defaults to false.
+  - `verify` (boolean, optional): Whether to verify SSL certificates. Defaults to true. Set to false to disable SSL verification (not recommended for production).
 
 **Returns:**
 - `Promise<string>`: The event ID (UUIDv4)
@@ -134,6 +136,7 @@ Updates an event or session with additional data.
   - `durationMs` (number, optional): Duration of the event in milliseconds.
   - `serverUrl` (string, optional): HoneyHive API server URL. Defaults to "https://api.honeyhive.ai" or HH_API_URL env var.
   - `verbose` (boolean, optional): Print detailed error messages for debugging. Defaults to false.
+  - `verify` (boolean, optional): Whether to verify SSL certificates. Defaults to true. Set to false to disable SSL verification (not recommended for production).
 
 **Returns:**
 - `Promise<void>`
@@ -176,6 +179,28 @@ Each error includes detailed information about what went wrong and how to fix it
 - API key or project not found
 - Network connectivity issues
 - Server-side errors
+
+## SSL Certificate Handling
+
+The logger uses HTTPS for secure communication with the HoneyHive API. You can control SSL certificate verification using the `verify` option:
+
+```javascript
+// Disable SSL verification (not recommended for production)
+await start({
+    apiKey: "your-api-key",
+    project: "your-project",
+    verify: false
+});
+
+// Use default SSL verification (recommended)
+await start({
+    apiKey: "your-api-key",
+    project: "your-project",
+    verify: true
+});
+```
+
+⚠️ **Warning**: Disabling SSL verification is not recommended for production use as it makes your connections vulnerable to man-in-the-middle attacks. Only use this option for development or testing purposes.
 
 ## Documentation
 
